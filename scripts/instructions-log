@@ -1,0 +1,80 @@
+#!/bin/bash
+# instructions-log — query the InstructionsLoaded hook log.
+#
+# The InstructionsLoaded hook fires whenever a CLAUDE.md or .claude/rules/*.md
+# file is loaded into context. This script provides convenience queries over
+# the resulting log for diagnosing what loaded, when, and why.
+#
+# Usage:
+#   instructions-log today      Today's loads, pretty-printed JSON
+#   instructions-log reasons    Count loads by load_reason
+#   instructions-log paths      Files loaded via path_glob_match
+#   instructions-log tail       Follow the log live (Ctrl-C to stop)
+#   instructions-log            Print this usage message
+#
+# Requires: jq (https://jqlang.org) for the today / reasons / paths / tail
+#   subcommands. Install on Windows via:
+#     curl -L -o /mingw64/bin/jq.exe \
+#       https://github.com/jqlang/jq/releases/latest/download/jq-windows-amd64.exe
+#
+# Log location: ~/.claude/logs/instructions-loaded.log
+# Hook config:  ~/.claude/settings.json (InstructionsLoaded event)
+# Hook script:  ~/.claude/hooks/log-instructions-loaded.sh
+
+set -euo pipefail
+
+LOG="$HOME/.claude/logs/instructions-loaded.log"
+STRIP_TIMESTAMP='s/^\[[^]]*\] //'
+
+usage() {
+  sed -n '3,/^$/p' "$0" | sed 's/^# \{0,1\}//'
+}
+
+require_log() {
+  if [[ ! -f "$LOG" ]]; then
+    echo "Log not found: $LOG" >&2
+    echo "Check that the InstructionsLoaded hook is configured in ~/.claude/settings.json" >&2
+    exit 1
+  fi
+}
+
+require_jq() {
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "jq not installed. See script header for install instructions." >&2
+    exit 1
+  fi
+}
+
+case "${1:-}" in
+  today)
+    require_log
+    require_jq
+    grep "$(date -I)" "$LOG" | sed "$STRIP_TIMESTAMP" | jq .
+    ;;
+  reasons)
+    require_log
+    require_jq
+    sed "$STRIP_TIMESTAMP" "$LOG" | jq -r .load_reason | sort | uniq -c | sort -rn
+    ;;
+  paths)
+    require_log
+    require_jq
+    grep 'path_glob_match' "$LOG" | sed "$STRIP_TIMESTAMP" | jq -r .file_path | sort | uniq -c | sort -rn
+    ;;
+  tail)
+    require_log
+    require_jq
+    tail -f "$LOG" | sed -u "$STRIP_TIMESTAMP" | while IFS= read -r line; do
+      echo "$line" | jq . 2>/dev/null || echo "$line"
+    done
+    ;;
+  ""|-h|--help|help)
+    usage
+    ;;
+  *)
+    echo "Unknown subcommand: $1" >&2
+    echo "" >&2
+    usage >&2
+    exit 1
+    ;;
+esac

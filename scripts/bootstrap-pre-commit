@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Install pre-commit framework and wire git hooks for claude-config.
+# Idempotent: safe to re-run.
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_ROOT"
+
+if ! command -v uv >/dev/null 2>&1; then
+    echo "error: uv not found on PATH. Install from https://docs.astral.sh/uv/" >&2
+    exit 1
+fi
+
+if ! command -v pre-commit >/dev/null 2>&1; then
+    echo "Installing pre-commit via uv..."
+    uv tool install pre-commit
+fi
+
+echo "Installing git hooks..."
+pre-commit install
+
+echo "Running pre-commit against all files..."
+pre-commit run --all-files

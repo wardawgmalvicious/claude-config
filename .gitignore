@@ -1,0 +1,69 @@
+# ==============================================================
+# Claude Code user configuration — not portable, but important to keep
+# ==============================================================
+.claude/*
+
+# ==============================================================
+# Ignore the docs directory, which may contain user-generated content that is not portable and may include sensitive information.
+# ==============================================================
+docs/project-instructions/*
+
+# ==============================================================
+# Ignore the prompts directory, which may contain user-generated content that is not portable and may include sensitive information.
+# ==============================================================
+prompts/*
+
+# ==============================================================
+# Ignore the logs directory, which may contain runtime logs that are not portable and may include sensitive information.
+# ==============================================================
+logs/*
+
+
+# ==============================================================
+# Ignore the memory directory, which may contain runtime state and user interactions that are not portable and may include sensitive information.
+# ==============================================================
+agent-memory/*
+agent-memory-local/*
+
+# ==============================================================
+# Claude Code runtime state — not portable, not backup-worthy
+# ==============================================================
+cache/
+backups/
+file-history/
+shell-snapshots/
+sessions/
+session-env/
+projects/
+todos/
+statsig/
+telemetry/
+ide/
+debug/
+downloads/
+plugins/
+
+# ==============================================================
+# Secrets and local-only overrides — never commit
+# ==============================================================
+.credentials.json
+settings.local.json
+history.jsonl
+mcp-needs-auth-cache.json
+stats-cache.json
+*.key
+*.pem
+.env
+*_credentials.json
+*credentials*.json
+
+# ==============================================================
+# OS / editor noise
+# ==============================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*~

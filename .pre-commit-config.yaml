@@ -1,0 +1,15 @@
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+
+  - repo: local
+    hooks:
+      - id: lint-skills
+        name: Validate SKILL.md frontmatter
+        entry: python scripts/lint-skills.py
+        language: python
+        additional_dependencies: [pyyaml]
+        files: '^skills/[^/]+/SKILL\.md$'
+        types: [markdown]

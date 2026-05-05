@@ -1,0 +1,11 @@
+title = "claude-config gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlisted patterns for claude-config"
+paths = [
+    '''docs/.*''',
+    '''tests/.*'''
+]
